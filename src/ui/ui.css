@@ -1,0 +1,1913 @@
+/* ==========================================================================
+   老公，我想吃鱼了 — UI
+   Cinematic deep-sea adventure title cards: serif type, off-white with soft glow,
+   hairlines, negative space, grain and vignette. Restrained and oppressive.
+   All sizes scale with --u (1px at 1280×720, 1.5px at 1920×1080).
+   ========================================================================== */
+
+.fish {
+  --u: max(0.62px, min(calc(100vw / 1280), calc(100vh / 720)));
+  --fg: #ece6da;
+  --fg2: rgba(236, 230, 218, 0.74);
+  --fg3: rgba(236, 230, 218, 0.48);
+  --fg4: rgba(236, 230, 218, 0.24);
+  --line: rgba(236, 230, 218, 0.26);
+  --blood: #9c2a27;
+  --blood-deep: #4a0f0e;
+  --red: #d8463f;
+  --ice: rgba(168, 214, 222, 0.9);
+  --glow: 0 0 calc(var(--u) * 18) rgba(168, 214, 222, 0.22), 0 0 calc(var(--u) * 2) rgba(255, 255, 255, 0.18);
+  --shade: 0 calc(var(--u) * 1) calc(var(--u) * 2) rgba(0, 0, 0, 0.55), 0 0 calc(var(--u) * 22) rgba(0, 0, 0, 0.45);
+  --serif: "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "Source Han Serif CN", "Songti SC",
+    "STSong", "SimSun", serif;
+  --latin: "Cormorant Garamond", "EB Garamond", "Baskerville", "Palatino Linotype", "Book Antiqua", "Georgia",
+    "Times New Roman", serif;
+  --ease-out: cubic-bezier(0.16, 0.7, 0.2, 1);
+  --ease-ink: cubic-bezier(0.2, 0.6, 0.15, 1);
+  --lb: max(calc(100vh * 0.085), calc((100vh - 100vw / 2.39) / 2)); /* 2.39:1 letterbox bar */
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--fg);
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1.4;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.fish *,
+.fish *::before,
+.fish *::after {
+  box-sizing: border-box;
+}
+/* Zero-specificity resets so component classes always win. */
+:where(.fish) :where(h1, h2, h3, p, dl, dd) {
+  margin: 0;
+  font-weight: inherit;
+}
+
+/* ---------- shared atoms ------------------------------------------------- */
+
+.fish kbd {
+  display: inline-block;
+  min-width: 1.9em;
+  margin: 0 0.18em;
+  padding: 0.18em 0.5em 0.14em;
+  border: 1px solid var(--fg4);
+  border-radius: calc(var(--u) * 2);
+  font-family: var(--latin), var(--serif);
+  font-size: 0.82em;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: var(--fg2);
+  background: rgba(236, 230, 218, 0.04);
+}
+
+.fish-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 16);
+  font-size: calc(var(--u) * 13);
+  letter-spacing: 0.62em;
+  color: var(--fg3);
+  white-space: nowrap;
+}
+.fish-kicker span {
+  margin-right: -0.62em; /* cancel trailing letter-spacing so it centres */
+}
+.fish-kicker i {
+  display: block;
+  width: calc(var(--u) * 64);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line));
+}
+.fish-kicker i:last-child {
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+.fish-hint {
+  font-size: calc(var(--u) * 12);
+  letter-spacing: 0.3em;
+  color: var(--fg4);
+}
+
+/* Text buttons: no boxes, hairlines grow from both sides when focused. */
+.fish-btn {
+  position: relative;
+  display: inline-block;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  outline: 0;
+  margin: 0;
+  padding: calc(var(--u) * 9) calc(var(--u) * 26) calc(var(--u) * 9) calc(var(--u) * 26 + 0.5em);
+  font-family: var(--serif);
+  font-size: calc(var(--u) * 19);
+  letter-spacing: 0.5em;
+  line-height: 1.3;
+  color: var(--fg3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.35s ease, text-shadow 0.35s ease, letter-spacing 0.5s var(--ease-out);
+}
+.fish-btn::before,
+.fish-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: calc(var(--u) * 34);
+  height: 1px;
+  opacity: 0;
+  transform: scaleX(0);
+  transition: transform 0.5s var(--ease-out), opacity 0.4s ease;
+}
+.fish-btn::before {
+  right: 100%;
+  transform-origin: right center;
+  background: linear-gradient(90deg, transparent, var(--fg2));
+}
+.fish-btn::after {
+  left: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--fg2), transparent);
+}
+.fish-btn.is-focus {
+  color: var(--fg);
+  text-shadow: var(--glow);
+}
+.fish-btn.is-focus::before,
+.fish-btn.is-focus::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.fish-btn--primary {
+  font-size: calc(var(--u) * 26);
+  letter-spacing: 0.7em;
+  padding-left: calc(var(--u) * 26 + 0.7em);
+}
+.fish-btn--small {
+  font-size: calc(var(--u) * 15);
+  letter-spacing: 0.4em;
+  padding-left: calc(var(--u) * 26 + 0.4em);
+}
+
+/* ---------- full-screen screens (title / pause / death / victory) ---------- */
+
+.fish-screen,
+.fish-panel {
+  --fade: 0.9s;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--fade) ease, visibility 0s linear var(--fade);
+}
+.fish-screen.is-on,
+.fish-panel.is-on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  cursor: default;
+  transition: opacity var(--fade) ease, visibility 0s;
+}
+
+/* Film grain + vignette over cards and menus (PostFX handles gameplay). */
+.fish-grain {
+  position: absolute;
+  inset: -6%; /* just enough overscan for the jitter below */
+  opacity: 0;
+  visibility: hidden;
+  background-repeat: repeat;
+  background-size: calc(var(--u) * 160);
+  transition: opacity 1s ease, visibility 0s linear 1s;
+}
+.fish.has-screen .fish-grain {
+  opacity: 0.055;
+  visibility: visible;
+  transition: opacity 1s ease, visibility 0s;
+  animation: fish-grain 0.8s steps(5) infinite;
+}
+@keyframes fish-grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -4%); }
+  60% { transform: translate(-4%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+.fish-fade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+}
+
+/* ============================== TITLE ===================================== */
+
+.fish-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fish-title__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 62% 44% at 50% 40%, rgba(0, 5, 9, 0.5) 0%, rgba(0, 5, 9, 0.18) 55%, rgba(0, 5, 9, 0) 80%),
+    radial-gradient(ellipse 120% 90% at 50% 45%, rgba(0, 0, 0, 0) 55%, rgba(0, 2, 5, 0.7) 100%),
+    linear-gradient(180deg, rgba(0, 3, 7, 0.55) 0%, rgba(0, 3, 7, 0) 26%, rgba(0, 3, 7, 0) 62%, rgba(0, 2, 5, 0.82) 100%);
+}
+.fish-title__block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: calc(var(--u) * -26);
+}
+.fish-title__main {
+  position: relative;
+  margin: calc(var(--u) * 30) 0 calc(var(--u) * 22);
+  font-size: calc(var(--u) * 96);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: #efe9dd;
+  text-shadow:
+    0 0 calc(var(--u) * 2) rgba(255, 255, 255, 0.25),
+    0 0 calc(var(--u) * 30) rgba(150, 205, 215, 0.22),
+    0 calc(var(--u) * 4) calc(var(--u) * 40) rgba(0, 0, 0, 0.7);
+}
+.fish-title__main.is-inking {
+  filter: url(#fish-ink-filter);
+}
+.fish-title__main .ch {
+  display: inline-block;
+  opacity: 0;
+}
+/* Display punctuation: CJK fonts disagree on where ，。 sit in the em box
+   (centred in some, bottom-left in others), so the display comma is a Latin
+   serif comma with a fixed advance and the full stop gets a tighter lead-in. */
+.fish .ch.is-comma,
+.fish .ch.is-stop {
+  display: inline-block;
+}
+.fish .ch.is-comma {
+  width: 0.42em;
+  margin-left: -0.06em;
+  font-family: var(--latin);
+  font-weight: 400;
+  text-align: left;
+}
+.fish .ch.is-stop {
+  margin-left: -0.22em;
+}
+.fish-title.is-play .fish-title__main .ch {
+  animation: fish-ink 2.8s var(--ease-ink) both;
+  animation-delay: calc(0.45s + var(--i) * 0.17s);
+}
+@keyframes fish-ink {
+  0% { opacity: 0; filter: blur(calc(var(--u) * 22)); transform: translateY(0.1em) scale(1.18, 1.1); }
+  35% { opacity: 0.55; filter: blur(calc(var(--u) * 7)); }
+  70% { opacity: 0.95; filter: blur(calc(var(--u) * 1.2)); }
+  100% { opacity: 1; filter: blur(0); transform: none; }
+}
+/* Ink blot spreading behind the line — also keeps it legible over bright shafts. */
+.fish-title__main::before {
+  content: '';
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  top: -55%;
+  bottom: -55%;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, rgba(0, 4, 8, 0.6) 0%, rgba(0, 4, 8, 0.28) 45%, rgba(0, 4, 8, 0) 70%);
+  opacity: 0;
+}
+.fish-title.is-play .fish-title__main::before {
+  animation: fish-blot 4s 0.2s var(--ease-ink) both;
+}
+@keyframes fish-blot {
+  0% { opacity: 0; transform: scale(0.4, 0.2); }
+  100% { opacity: 1; transform: none; }
+}
+
+.fish-title .fish-kicker,
+.fish-title__en,
+.fish-title__menu,
+.fish-title__foot,
+.fish-title__side {
+  opacity: 0;
+}
+.fish-title.is-play .fish-kicker { animation: fish-rise 1.6s 0.2s var(--ease-out) both; }
+.fish-title.is-play .fish-title__en { animation: fish-rise 1.8s 2.1s var(--ease-out) both; }
+.fish-title.is-play .fish-title__menu { animation: fish-rise 1.6s 2.7s var(--ease-out) both; }
+.fish-title.is-play .fish-title__foot { animation: fish-fade-in 2.4s 3.2s ease both; }
+.fish-title.is-play .fish-title__side { animation: fish-fade-in 3s 3.6s ease both; }
+
+.fish-title__en {
+  font-family: var(--latin);
+  font-size: calc(var(--u) * 15);
+  font-variant: small-caps;
+  text-transform: lowercase;
+  letter-spacing: 0.95em;
+  margin-right: -0.95em;
+  color: var(--fg3);
+}
+.fish-title__menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 4);
+  margin-top: calc(var(--u) * 64);
+}
+.fish-quality {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--u) * 6);
+  margin-top: calc(var(--u) * 8);
+  font-size: calc(var(--u) * 13);
+  letter-spacing: 0.3em;
+  padding-left: calc(var(--u) * 26 + 0.3em);
+}
+.fish-quality__lbl {
+  margin-right: calc(var(--u) * 10);
+  color: var(--fg4);
+}
+.fish-quality.is-focus .fish-quality__lbl {
+  color: var(--fg3);
+}
+.fish-quality__opt {
+  position: relative;
+  padding: calc(var(--u) * 2) calc(var(--u) * 6) calc(var(--u) * 4) calc(var(--u) * 6 + 0.3em);
+  color: var(--fg4);
+  transition: color 0.3s ease;
+}
+.fish-quality__opt:hover,
+.fish-quality__opt.is-pending {
+  color: var(--fg);
+}
+.fish-quality__opt.is-current {
+  color: var(--fg2);
+}
+.fish-quality__opt.is-current::after,
+.fish-quality__opt.is-pending::after {
+  content: '';
+  position: absolute;
+  left: 30%;
+  right: 20%;
+  bottom: 0;
+  height: 1px;
+  background: var(--fg2);
+}
+.fish-quality__opt.is-pending::after {
+  background: var(--fg);
+  animation: fish-blink 0.9s ease-in-out infinite alternate;
+}
+
+.fish-title__foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--u) * 34);
+  text-align: center;
+  font-size: calc(var(--u) * 12);
+  letter-spacing: 0.5em;
+  color: var(--fg4);
+}
+.fish-title__side {
+  position: absolute;
+  right: calc(var(--u) * 40);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row; /* inline axis = vertical in vertical-rl */
+  align-items: center;
+  gap: calc(var(--u) * 14);
+  writing-mode: vertical-rl;
+  font-size: calc(var(--u) * 12);
+  letter-spacing: 0.55em;
+  color: var(--fg4);
+}
+.fish-title__side i {
+  display: block;
+  width: 1px;
+  height: calc(var(--u) * 60);
+  flex: none;
+  background: linear-gradient(180deg, transparent, var(--line), transparent);
+}
+.fish-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ============================== SUB-PANELS ================================ */
+
+/* Near-opaque and blurred: the title's big glyphs must not read through the rows. */
+.fish-controls,
+.fish-notices {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(1, 6, 10, 0.9) 0%, rgba(0, 2, 5, 0.96) 100%);
+  backdrop-filter: blur(calc(var(--u) * 16));
+  -webkit-backdrop-filter: blur(calc(var(--u) * 16));
+  --fade: 0.45s;
+}
+/* …and the host screen's block (title / pause) fades back while it is open
+   (containers only: their children's reveal animations own `opacity`). */
+.fish-title__block,
+.fish-pause__inner {
+  transition: opacity 0.45s ease;
+}
+.fish.has-panel .fish-title__block,
+.fish.has-panel .fish-pause__inner {
+  opacity: 0;
+}
+.fish-controls__box {
+  width: calc(var(--u) * 740);
+  padding: calc(var(--u) * 34) calc(var(--u) * 54) calc(var(--u) * 26);
+  transform: translateY(calc(var(--u) * 10));
+  transition: transform 0.6s var(--ease-out);
+}
+.fish-controls.is-on .fish-controls__box {
+  transform: none;
+}
+.fish-controls__head,
+.fish-notices__head {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 20);
+  margin-bottom: calc(var(--u) * 26);
+}
+.fish-controls__head i,
+.fish-notices__head i {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line));
+}
+.fish-controls__head i:last-child,
+.fish-notices__head i:last-child {
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+.fish-controls__head h3,
+.fish-notices__head h3 {
+  font-size: calc(var(--u) * 22);
+  letter-spacing: 0.9em;
+  margin-right: -0.9em;
+  color: var(--fg);
+  text-shadow: var(--glow);
+}
+.fish-controls__grid {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  column-gap: calc(var(--u) * 26);
+  row-gap: calc(var(--u) * 11);
+  align-items: baseline;
+}
+.fish-controls__name {
+  font-size: calc(var(--u) * 15);
+  letter-spacing: 0.3em;
+  color: var(--fg);
+  text-align: right;
+  white-space: nowrap;
+}
+.fish-controls__keys {
+  font-size: calc(var(--u) * 13);
+  white-space: nowrap;
+  color: var(--fg3);
+}
+.fish-controls__keys em {
+  font-style: normal;
+  margin: 0 0.25em;
+  color: var(--fg4);
+}
+.fish-controls__keys b {
+  font-weight: 400;
+  margin-right: 0.3em;
+  color: var(--fg2);
+  letter-spacing: 0.2em;
+}
+.fish-controls__note {
+  font-size: calc(var(--u) * 13);
+  letter-spacing: 0.12em;
+  color: var(--fg3);
+}
+.fish-controls__tip {
+  margin-top: calc(var(--u) * 26);
+  padding-top: calc(var(--u) * 18);
+  border-top: 1px solid rgba(236, 230, 218, 0.1);
+  text-align: center;
+  font-size: calc(var(--u) * 13);
+  letter-spacing: 0.25em;
+  color: var(--fg3);
+}
+.fish-controls__foot,
+.fish-notices__foot {
+  display: flex;
+  justify-content: center;
+  margin-top: calc(var(--u) * 16);
+}
+
+.fish-notices__box {
+  display: flex;
+  flex-direction: column;
+  width: min(calc(var(--u) * 860), 94vw);
+  max-height: 88vh;
+  padding: max(16px, calc(var(--u) * 26)) max(18px, calc(var(--u) * 40));
+}
+.fish-notices__head,
+.fish-notices__foot {
+  flex-shrink: 0;
+}
+.fish-notices__head h3 {
+  white-space: nowrap;
+  letter-spacing: 0.35em;
+  margin-right: -0.35em;
+}
+.fish-notices__text {
+  min-height: 0;
+  margin: 0;
+  padding-right: calc(var(--u) * 16);
+  overflow: auto;
+  overscroll-behavior: contain;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: max(13px, calc(var(--u) * 14)) / 1.65 ui-monospace, monospace;
+  color: var(--fg2);
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ============================== PAUSE ===================================== */
+
+.fish-pause {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 50%, rgba(1, 6, 10, 0.45) 0%, rgba(0, 2, 5, 0.86) 100%);
+  backdrop-filter: blur(calc(var(--u) * 5)) saturate(0.6);
+  -webkit-backdrop-filter: blur(calc(var(--u) * 5)) saturate(0.6);
+  --fade: 0.35s;
+}
+.fish-pause__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fish-pause__title {
+  margin: calc(var(--u) * 20) 0 calc(var(--u) * 42);
+  font-size: calc(var(--u) * 52);
+  letter-spacing: 1em;
+  margin-right: -1em;
+  color: var(--fg);
+  text-shadow: var(--glow);
+}
+.fish-pause__menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 2);
+}
+.fish-pause .fish-hint {
+  margin-top: calc(var(--u) * 40);
+}
+.fish-pause.is-play .fish-pause__title { animation: fish-ink-soft 0.9s var(--ease-out) both; }
+.fish-pause.is-play .fish-pause__menu { animation: fish-rise 0.8s 0.12s var(--ease-out) both; }
+
+/* ============================== DEATH ===================================== */
+
+.fish-death {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --fade: 0.6s;
+}
+/* Light enough that the death camera (slow pull-away from the body) still
+   reads through it; the ink blot behind the words keeps them legible. */
+.fish-death__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 50%, rgba(74, 8, 8, 0.25) 0%, rgba(24, 1, 2, 0.6) 55%, rgba(0, 0, 0, 0.85) 100%);
+}
+.fish-death__inner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fish-death__inner::before {
+  content: '';
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  top: -18%;
+  bottom: -14%;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 42%, rgba(10, 1, 1, 0.55) 0%, rgba(10, 1, 1, 0.3) 45%, rgba(10, 1, 1, 0) 72%);
+  opacity: 0;
+}
+.fish-death__title {
+  font-size: calc(var(--u) * 76);
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  margin-right: -0.32em;
+  color: #eadbd0;
+  text-shadow: 0 0 calc(var(--u) * 3) rgba(255, 220, 210, 0.25), 0 0 calc(var(--u) * 46) rgba(150, 12, 12, 0.6);
+}
+.fish-death__rule {
+  width: calc(var(--u) * 340);
+  height: 1px;
+  margin: calc(var(--u) * 30) 0 calc(var(--u) * 20);
+  background: linear-gradient(90deg, transparent, rgba(200, 70, 60, 0.75), transparent);
+}
+.fish-death__sub {
+  font-size: calc(var(--u) * 14);
+  letter-spacing: 0.32em;
+  color: var(--fg3);
+}
+.fish-death__menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 2);
+  margin-top: calc(var(--u) * 54);
+}
+.fish-death__hint {
+  margin-top: calc(var(--u) * 26);
+}
+.fish-death__bg,
+.fish-death__title,
+.fish-death__rule,
+.fish-death__sub,
+.fish-death__menu,
+.fish-death__hint {
+  opacity: 0;
+}
+/* The death camera plays clean for a beat, then the colour bleeds in and the
+   words surface slowly. Menu arming (DeathScreen armDelay) follows the menu. */
+.fish-death.is-play .fish-death__bg { animation: fish-blood-in 2.6s 1.2s ease-in-out both; }
+.fish-death.is-play .fish-death__inner::before { animation: fish-fade-in 2.4s 0.9s ease both; }
+.fish-death.is-play .fish-death__title { animation: fish-ink-slow 2.6s 1.1s var(--ease-ink) both; }
+.fish-death.is-play .fish-death__rule { animation: fish-rule 1.6s 2s var(--ease-out) both; }
+.fish-death.is-play .fish-death__sub { animation: fish-fade-in 1.6s 2.3s ease both; }
+.fish-death.is-play .fish-death__menu { animation: fish-rise 1.2s 2.5s var(--ease-out) both; }
+.fish-death.is-play .fish-death__hint { animation: fish-fade-in 1.2s 3s ease both; }
+/* A slow seep, not a flash: a brightness boost on this light veil washes the scene grey. */
+@keyframes fish-blood-in {
+  0% { opacity: 0; filter: saturate(1.5); }
+  100% { opacity: 1; filter: none; }
+}
+
+/* ============================== VICTORY =================================== */
+
+/* The payoff shot (cinematics.victoryPose) frames 老公 at 30 % of the width,
+   high, and the sinking megalodon low at ~75 %. The panel is a column right of
+   him (--vic-x, a share of the width like the camera's framing) hung under the
+   top letterbox bar, so it stays off both; the veil is a pool of shade behind
+   the column plus a light edge vignette, never a blanket over the corpse. */
+.fish-victory {
+  --fade: 1.4s;
+  --vic-x: 59%;
+}
+.fish-victory__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 31% 46% at var(--vic-x) 40%, rgba(0, 4, 8, 0.6) 0%, rgba(0, 4, 8, 0.36) 55%, rgba(0, 4, 8, 0) 100%),
+    radial-gradient(ellipse 78% 72% at 50% 45%, rgba(0, 2, 5, 0) 55%, rgba(0, 2, 5, 0.42) 100%);
+}
+.fish-victory__inner {
+  position: absolute;
+  left: var(--vic-x);
+  top: calc(var(--lb) + var(--u) * 18);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fish-victory__kicker { opacity: 0; }
+.fish-victory__title {
+  margin-top: calc(var(--u) * 14);
+  font-size: calc(var(--u) * 66);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  margin-right: -0.16em;
+  white-space: nowrap;
+  text-shadow:
+    0 0 calc(var(--u) * 2) rgba(255, 255, 255, 0.25),
+    0 0 calc(var(--u) * 34) rgba(220, 200, 160, 0.22),
+    0 calc(var(--u) * 4) calc(var(--u) * 40) rgba(0, 0, 0, 0.7);
+}
+.fish-victory__title .ch {
+  display: inline-block;
+  opacity: 0;
+}
+.fish-victory__rule {
+  width: calc(var(--u) * 400);
+  height: 1px;
+  margin: calc(var(--u) * 24) 0 calc(var(--u) * 22);
+  background: linear-gradient(90deg, transparent, var(--fg2), transparent);
+  opacity: 0;
+}
+.fish-victory__stats {
+  display: grid;
+  grid-template-columns: repeat(3, calc(var(--u) * 140));
+  row-gap: calc(var(--u) * 16);
+}
+.fish-victory__row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  opacity: 0;
+}
+.fish-victory__row dt {
+  font-size: calc(var(--u) * 12);
+  letter-spacing: 0.45em;
+  margin-right: -0.45em;
+  color: var(--fg3);
+}
+.fish-victory__row dd {
+  font-family: var(--latin), var(--serif);
+  font-size: calc(var(--u) * 30);
+  line-height: 1.2;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--fg);
+  text-shadow: var(--glow);
+}
+.fish-victory__row dd small {
+  font-size: 0.55em;
+  color: var(--fg3);
+}
+.fish-victory__menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 2);
+  margin-top: calc(var(--u) * 28);
+  opacity: 0;
+}
+/* The payoff shot (the megalodon sinking past 老公) plays clean until 3 s
+   (the camera settles at ~1.3 s) before the veil and the panel come in. Keep
+   VictoryScreen's armDelay in step with the menu. */
+.fish-victory__bg { opacity: 0; }
+.fish-victory.is-play .fish-victory__bg { animation: fish-fade-in 2.2s 3s ease both; }
+.fish-victory.is-play .fish-victory__kicker { animation: fish-fade-in 2s 3s ease both; }
+.fish-victory.is-play .fish-victory__title .ch {
+  animation: fish-ink 2.4s var(--ease-ink) both;
+  animation-delay: calc(3.2s + var(--i) * 0.16s);
+}
+.fish-victory.is-play .fish-victory__rule { animation: fish-rule 1.6s 4.4s var(--ease-out) both; }
+.fish-victory.is-play .fish-victory__row {
+  animation: fish-rise 1.1s var(--ease-out) both;
+  animation-delay: calc(4.7s + var(--i) * 0.12s);
+}
+.fish-victory.is-play .fish-victory__menu { animation: fish-rise 1.2s 5.6s var(--ease-out) both; }
+
+/* ============================ CINEMATIC =================================== */
+
+.fish-letterbox__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--lb);
+  background: #000;
+  transform: scaleY(0);
+  transition: transform 1.3s cubic-bezier(0.6, 0, 0.2, 1);
+}
+.fish-letterbox__bar--top {
+  top: 0;
+  transform-origin: top center;
+}
+.fish-letterbox__bar--bot {
+  bottom: 0;
+  transform-origin: bottom center;
+}
+.fish-letterbox.is-on .fish-letterbox__bar {
+  transform: scaleY(1);
+}
+.fish-skip {
+  position: absolute;
+  right: calc(var(--u) * 40);
+  bottom: calc(var(--lb) * 0.5);
+  transform: translateY(50%);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 4);
+  font-size: calc(var(--u) * 12);
+  letter-spacing: 0.3em;
+  color: var(--fg4);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.fish-skip.is-on {
+  opacity: 1;
+  transition: opacity 1.4s ease 1.6s;
+}
+.fish-location {
+  position: absolute;
+  left: calc(var(--u) * 64);
+  bottom: calc(var(--lb) + var(--u) * 44);
+  padding-left: calc(var(--u) * 16);
+  border-left: 1px solid var(--line);
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.fish-location.is-on {
+  opacity: 1;
+  transition-duration: 0.3s;
+}
+.fish-location__l1 {
+  font-size: calc(var(--u) * 19);
+  letter-spacing: 0.36em;
+  color: var(--fg);
+  text-shadow: var(--shade);
+}
+.fish-location__l2 {
+  margin-top: calc(var(--u) * 6);
+  font-size: calc(var(--u) * 12);
+  letter-spacing: 0.6em;
+  color: var(--fg3);
+  text-shadow: var(--shade);
+}
+.fish-location.is-play .fish-location__l1 { animation: fish-type 1.4s steps(7, end) both; }
+.fish-location.is-play .fish-location__l2 { animation: fish-type 1.2s 0.9s steps(5, end) both; }
+@keyframes fish-type {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* Intro veil: the phone call plays in the dark; lifts on the cinematic 'dive'.
+   The phone buzzes and its glow throbs through one 2.1 s vibration cycle
+   (buzz 0–1.2 s, as the 'phoneRing' sound) while the screen stays lit; it is
+   picked up at 2.1 s — 来电 turns to 通话中, the answer key goes — and stays
+   dimly lit for the call. */
+.fish-introveil {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  /* dark enough that the picture stays <= ~12/255 mean luma with the grain on top */
+  background: radial-gradient(ellipse 85% 75% at 50% 48%, rgba(1, 4, 5, 0.96) 0%, rgba(0, 2, 3, 0.99) 100%);
+}
+.fish-introveil.is-on {
+  opacity: 1;
+  visibility: visible;
+}
+.fish-introveil.is-on.is-lifted {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease-in, visibility 0s linear 0.35s;
+}
+.fish-introveil__phone {
+  position: absolute;
+  right: 9%;
+  bottom: calc(var(--lb) + 11%);
+  width: calc(var(--u) * 420);
+  height: calc(var(--u) * 300);
+  margin: 0 calc(var(--u) * -120) calc(var(--u) * -110) 0;
+}
+/* the light it throws on the table: throbs with the buzz */
+.fish-introveil__phone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(closest-side, rgba(150, 202, 226, 0.17) 0%, rgba(104, 160, 192, 0.07) 42%, rgba(80, 130, 160, 0) 100%);
+  opacity: 0;
+}
+/* The phone, face up: a small incoming-call screen (phone UI type, not the
+   film serif), a hair out of focus. */
+.fish-phone {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc(var(--u) * 54);
+  height: calc(var(--u) * 102);
+  margin: calc(var(--u) * -51) 0 0 calc(var(--u) * -27);
+  padding: calc(var(--u) * 17) 0 calc(var(--u) * 11);
+  border: calc(var(--u) * 1.5) solid rgba(6, 9, 11, 0.95);
+  border-radius: calc(var(--u) * 8);
+  background: linear-gradient(170deg, rgb(98, 142, 168) 0%, rgb(54, 88, 112) 52%, rgb(30, 52, 70) 100%);
+  box-shadow: 0 0 calc(var(--u) * 8) rgba(150, 205, 230, 0.4), 0 0 calc(var(--u) * 26) rgba(110, 170, 205, 0.22);
+  font-family: "PingFang SC", "Noto Sans SC", "Noto Sans CJK SC", "Microsoft YaHei", "WenQuanYi Zen Hei", sans-serif;
+  color: #f2fbff;
+  filter: blur(calc(var(--u) * 0.3));
+  transform: rotate(-14deg);
+  opacity: 0;
+}
+.fish-phone__who {
+  font-size: calc(var(--u) * 13);
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  margin-right: -0.12em;
+  text-shadow: 0 0 calc(var(--u) * 4) rgba(200, 235, 250, 0.55);
+}
+.fish-phone__what {
+  position: relative;
+  width: 100%;
+  height: calc(var(--u) * 11);
+  margin-top: calc(var(--u) * 4);
+  font-size: calc(var(--u) * 8.5);
+  line-height: calc(var(--u) * 11);
+  letter-spacing: 0.25em;
+  text-align: center;
+  color: rgba(226, 242, 250, 0.82);
+}
+.fish-phone__what span {
+  position: absolute;
+  inset: 0;
+  margin-right: -0.25em;
+}
+.fish-phone__call {
+  opacity: 0;
+}
+.fish-phone__keys {
+  display: flex;
+  gap: calc(var(--u) * 14);
+  margin-top: auto;
+}
+.fish-phone__keys i {
+  display: block;
+  width: calc(var(--u) * 9);
+  height: calc(var(--u) * 9);
+  border-radius: 50%;
+}
+.fish-phone__no {
+  background: #d0493d;
+  box-shadow: 0 0 calc(var(--u) * 4) rgba(230, 80, 60, 0.7);
+}
+.fish-phone__yes {
+  background: #46b46b;
+  box-shadow: 0 0 calc(var(--u) * 4) rgba(80, 220, 120, 0.7);
+}
+.fish-introveil.is-play .fish-introveil__phone::before {
+  animation: fish-phone-ring 2.1s linear both, fish-phone-call 6.5s 2.1s ease-in-out forwards;
+}
+/* The screen itself stays lit through the whole ring (the title → intro dip
+   covers its first second), dims once picked up. */
+.fish-introveil.is-play .fish-phone {
+  animation: fish-phone-buzz 0.08s 15 steps(2, jump-none) alternate, fish-phone-screen 8.6s linear both;
+}
+@keyframes fish-phone-screen {
+  0% { opacity: 0.3; }
+  1% { opacity: 1; }
+  24.4% { opacity: 1; } /* 2.1 s: picked up */
+  31% { opacity: 0.6; }
+  100% { opacity: 0.4; }
+}
+/* picked up: 来电 → 通话中, the answer key goes, hang-up slides to the middle */
+.fish-introveil.is-play .fish-phone__ring { animation: fish-fade-out 0.3s 2.1s ease both; }
+.fish-introveil.is-play .fish-phone__call { animation: fish-fade-in 0.3s 2.1s ease both; }
+.fish-introveil.is-play .fish-phone__yes {
+  /* forwards, not both: a backwards fill would mask the pulse during the delay */
+  animation: fish-phone-key 0.35s 6 ease-in-out alternate, fish-fade-out 0.25s 2.1s ease forwards;
+}
+.fish-introveil.is-play .fish-phone__no { animation: fish-phone-hangup 0.35s 2.1s var(--ease-out) both; }
+@keyframes fish-phone-key {
+  from { opacity: 1; }
+  to { opacity: 0.55; }
+}
+@keyframes fish-phone-hangup {
+  to { transform: translateX(calc(var(--u) * 11.5)); }
+}
+@keyframes fish-phone-ring {
+  0% { opacity: 0.2; }
+  3% { opacity: 1; }
+  54% { opacity: 0.92; }
+  60% { opacity: 0.38; }
+  100% { opacity: 0.42; }
+}
+@keyframes fish-phone-call {
+  0% { opacity: 0.42; }
+  100% { opacity: 0.22; }
+}
+@keyframes fish-phone-buzz {
+  from { transform: rotate(-14deg) translate(calc(var(--u) * -1.5), 0); }
+  to { transform: rotate(-14deg) translate(calc(var(--u) * 1.5), 0); }
+}
+
+/* Subtitles: in the lower letterbox bar during the intro, above the HUD in play. */
+.fish-subs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--u) * 118);
+  height: 0;
+}
+.fish[data-state='intro'] .fish-subs {
+  bottom: calc(var(--lb) * 0.5 - var(--u) * 6);
+}
+.fish-sub {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, calc(50% + var(--u) * 6));
+  filter: blur(calc(var(--u) * 3));
+  transition: opacity 0.7s ease, transform 0.9s var(--ease-out), filter 0.7s ease;
+}
+.fish-sub.is-on {
+  opacity: 1;
+  transform: translate(-50%, 50%);
+  filter: blur(0);
+}
+.fish-sub__who {
+  font-size: calc(var(--u) * 12);
+  letter-spacing: 0.55em;
+  margin-right: -0.55em;
+  margin-bottom: calc(var(--u) * 7);
+  color: rgba(214, 196, 160, 0.75);
+}
+.fish-sub__line {
+  font-size: calc(var(--u) * 25);
+  letter-spacing: 0.14em;
+  color: var(--fg);
+  text-shadow: var(--shade);
+}
+.fish-sub.is-caption .fish-sub__who {
+  display: none;
+}
+.fish-sub.is-caption .fish-sub__line {
+  font-size: calc(var(--u) * 15);
+  letter-spacing: 0.5em;
+  margin-right: -0.5em;
+  color: var(--fg3);
+}
+
+/* Wave title card. The follow camera frames 老公 left of centre (over his
+   right shoulder, head at ~45 % height), so the block sits in the right
+   third — centred at ~70 % of the width, a little above the middle — and
+   never covers him; the shade pool follows it. */
+.fish-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 10vh 40%;
+  opacity: 0;
+  transition: opacity 1s ease;
+  background: radial-gradient(ellipse 36% 42% at 70% 45%, rgba(0, 4, 8, 0.55) 0%, rgba(0, 4, 8, 0.2) 60%, rgba(0, 4, 8, 0) 85%);
+}
+.fish-card.is-on {
+  opacity: 1;
+  transition-duration: 0.4s;
+}
+.fish-card__num {
+  font-size: calc(var(--u) * 80);
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  margin-right: -0.34em;
+  line-height: 1.15;
+  color: #efe9dd;
+  text-shadow: 0 0 calc(var(--u) * 2) rgba(255, 255, 255, 0.25), 0 0 calc(var(--u) * 30) rgba(150, 205, 215, 0.2),
+    var(--shade);
+}
+.fish-card__rule {
+  width: calc(var(--u) * 380);
+  height: 1px;
+  margin: calc(var(--u) * 26) 0 calc(var(--u) * 22);
+  background: linear-gradient(90deg, transparent, var(--fg2), transparent);
+}
+.fish-card__name {
+  font-size: calc(var(--u) * 28);
+  letter-spacing: 0.85em;
+  margin-right: -0.85em;
+  color: var(--fg);
+  text-shadow: var(--shade);
+}
+.fish-card__latin {
+  margin-top: calc(var(--u) * 12);
+  font-family: var(--latin), var(--serif);
+  font-style: italic;
+  font-size: calc(var(--u) * 14);
+  letter-spacing: 0.16em;
+  color: var(--fg3);
+  text-shadow: var(--shade);
+}
+.fish-card__intro {
+  margin-top: calc(var(--u) * 40);
+  font-size: calc(var(--u) * 17);
+  letter-spacing: 0.34em;
+  margin-right: -0.34em;
+  color: var(--fg2);
+  text-shadow: var(--shade);
+}
+.fish-card.is-boss .fish-card__num {
+  font-size: calc(var(--u) * 92);
+  text-shadow: 0 0 calc(var(--u) * 3) rgba(255, 230, 220, 0.25), 0 0 calc(var(--u) * 44) rgba(160, 20, 16, 0.5),
+    var(--shade);
+}
+.fish-card.is-boss .fish-card__rule {
+  background: linear-gradient(90deg, transparent, rgba(210, 70, 60, 0.9), transparent);
+}
+.fish-card__num,
+.fish-card__rule,
+.fish-card__name,
+.fish-card__latin,
+.fish-card__intro {
+  opacity: 0;
+}
+.fish-card.is-play .fish-card__num { animation: fish-ink-card 1.7s var(--ease-ink) both; }
+.fish-card.is-play .fish-card__rule { animation: fish-rule 1.4s 0.5s var(--ease-out) both; }
+.fish-card.is-play .fish-card__name { animation: fish-track-in 1.6s 0.85s var(--ease-out) both; }
+.fish-card.is-play .fish-card__latin { animation: fish-fade-in 1.4s 1.3s ease both; }
+.fish-card.is-play .fish-card__intro { animation: fish-rise 1.4s 1.65s var(--ease-out) both; }
+.fish-card.is-boss.is-play .fish-card__num { animation: fish-ink-boss 2.1s var(--ease-ink) both; }
+
+/* =============================== HUD ====================================== */
+
+.fish-hud {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.fish-hud.is-on {
+  opacity: 1;
+}
+/* Wave card straight after the intro / victory: wait out the letterbox
+   retract (1.3 s) so the player bars don't peek from under the bottom bar.
+   (From a breather the HUD is already on and this never applies.) */
+.fish[data-state='transition'] .fish-hud.is-on {
+  transition-delay: 1s;
+}
+.fish-lowhp {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 75% 70% at 50% 50%, rgba(90, 0, 0, 0) 55%, rgba(110, 6, 6, 0.38) 78%, rgba(120, 8, 6, 0.85) 100%);
+  will-change: opacity;
+}
+
+/* -- player bars (bottom-left) -- */
+.fish-player {
+  position: absolute;
+  left: calc(var(--u) * 46);
+  bottom: calc(var(--u) * 42);
+  width: calc(var(--u) * 300);
+}
+.fish-player__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: calc(var(--u) * 9);
+  text-shadow: var(--shade);
+}
+.fish-player__name {
+  font-size: calc(var(--u) * 15);
+  letter-spacing: 0.5em;
+  color: var(--fg2);
+  transition: color 0.5s ease;
+}
+.fish-player__num {
+  font-family: var(--latin), var(--serif);
+  font-size: calc(var(--u) * 14);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--fg3);
+}
+.fish-barwrap {
+  position: relative;
+}
+/* hairline end caps */
+.fish-barwrap::before,
+.fish-barwrap::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--u) * -4);
+  bottom: calc(var(--u) * -4);
+  width: 1px;
+  background: var(--fg4);
+}
+.fish-barwrap::before { left: calc(var(--u) * -6); }
+.fish-barwrap::after { right: calc(var(--u) * -6); }
+.fish-bar {
+  position: relative;
+  height: calc(var(--u) * 4);
+  overflow: hidden;
+  background: rgba(236, 230, 218, 0.08);
+  box-shadow: 0 0 calc(var(--u) * 12) rgba(0, 0, 0, 0.5);
+}
+.fish-bar > i {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+}
+.fish-bar__lag {
+  background: rgba(255, 252, 244, 0.8);
+}
+.fish-bar__fill {
+  background: linear-gradient(90deg, rgba(236, 230, 218, 0.62), rgba(244, 239, 229, 0.96));
+  transition: background 0.6s ease;
+}
+.fish-bar__flash {
+  background: #fff;
+  opacity: 0;
+}
+.fish-barwrap--st {
+  margin-top: calc(var(--u) * 8);
+  width: 72%;
+  transition: opacity 0.8s ease;
+}
+.fish-barwrap--st::before,
+.fish-barwrap--st::after {
+  display: none;
+}
+.fish-barwrap--st.is-full {
+  opacity: 0.38;
+}
+.fish-bar--st {
+  height: calc(var(--u) * 2);
+}
+.fish-bar--st .fish-bar__fill {
+  background: linear-gradient(90deg, rgba(120, 180, 190, 0.55), rgba(176, 222, 228, 0.9));
+}
+.fish-barwrap--st.is-low .fish-bar__fill {
+  background: rgba(170, 120, 110, 0.6);
+}
+.fish-player.is-low .fish-bar--hp .fish-bar__fill {
+  background: linear-gradient(90deg, #5e1110, #b8322c);
+  animation: fish-blink 0.55s ease-in-out infinite alternate;
+}
+.fish-player.is-low .fish-player__name {
+  color: #d9776c;
+}
+
+/* -- enemy / boss bars (top-centre) -- */
+.fish-boss {
+  position: absolute;
+  top: calc(var(--u) * 30);
+  left: 50%;
+  width: calc(var(--u) * 500);
+  transform: translate(-50%, 0);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.fish-boss.is-on {
+  opacity: 1;
+}
+.fish-hud:not(.is-combat) .fish-boss {
+  opacity: 0;
+}
+.fish-boss__kicker {
+  font-size: calc(var(--u) * 11);
+  letter-spacing: 0.7em;
+  margin-right: -0.7em;
+  color: var(--fg3);
+  text-shadow: var(--shade);
+}
+.fish-boss__name {
+  margin: calc(var(--u) * 3) 0 calc(var(--u) * 10);
+  font-size: calc(var(--u) * 19);
+  letter-spacing: 0.6em;
+  margin-right: -0.6em;
+  color: var(--fg);
+  text-shadow: var(--glow), var(--shade);
+}
+.fish-boss__bars {
+  display: flex;
+  gap: calc(var(--u) * 22);
+}
+.fish-ebar {
+  position: relative;
+  flex: 1;
+}
+.fish-ebar__track {
+  position: relative;
+  height: calc(var(--u) * 3);
+  overflow: hidden;
+  background: rgba(236, 230, 218, 0.09);
+  box-shadow: 0 0 calc(var(--u) * 12) rgba(0, 0, 0, 0.55);
+}
+.fish-ebar__track > i {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+}
+.fish-ebar__lag {
+  background: rgba(240, 232, 220, 0.75);
+}
+.fish-ebar__fill {
+  background: linear-gradient(90deg, var(--blood-deep), var(--blood) 70%, #b7413a);
+}
+.fish-ebar__flash {
+  background: #fff;
+  opacity: 0;
+}
+.fish-ebar::before,
+.fish-ebar::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--u) * -4);
+  bottom: calc(var(--u) * -4);
+  width: 1px;
+  background: var(--fg4);
+}
+.fish-ebar::before { left: calc(var(--u) * -6); }
+.fish-ebar::after { right: calc(var(--u) * -6); }
+.fish-ebar__tick {
+  position: absolute;
+  top: calc(var(--u) * -5);
+  bottom: calc(var(--u) * -5);
+  width: 1px;
+  margin-left: -0.5px;
+  background: var(--fg2);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+.fish-ebar__tick.is-passed {
+  background: var(--red);
+  box-shadow: 0 0 calc(var(--u) * 6) rgba(216, 70, 63, 0.9);
+}
+.fish-ebar__label {
+  margin-top: calc(var(--u) * 7);
+  font-size: calc(var(--u) * 11);
+  letter-spacing: 0.4em;
+  color: var(--fg3);
+  transition: color 0.3s ease, opacity 0.6s ease;
+}
+.fish-ebar.is-dead {
+  opacity: 0.35;
+  transition: opacity 1.2s ease;
+}
+.fish-ebar.is-dead .fish-ebar__label {
+  text-decoration: line-through;
+}
+.fish-ebar.is-hot .fish-ebar__label {
+  color: var(--red);
+}
+.fish-ebar.is-hot .fish-ebar__track {
+  box-shadow: 0 0 calc(var(--u) * 10) rgba(216, 70, 63, 0.55);
+}
+.fish-boss.is-boss {
+  width: calc(var(--u) * 640);
+}
+.fish-boss.is-boss .fish-ebar__track {
+  height: calc(var(--u) * 5);
+}
+.fish-boss.is-boss .fish-boss__name {
+  font-size: calc(var(--u) * 23);
+}
+.fish-boss.is-multi {
+  width: calc(var(--u) * 520);
+}
+.fish-boss.is-multi .fish-ebar__track {
+  height: calc(var(--u) * 2);
+}
+
+/* -- lock reticle -- */
+.fish-reticle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--u) * 52);
+  height: calc(var(--u) * 52);
+  margin: calc(var(--u) * -26) 0 0 calc(var(--u) * -26);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  will-change: transform;
+}
+.fish-reticle.is-on {
+  opacity: 1;
+}
+.fish-reticle.is-big {
+  width: calc(var(--u) * 76);
+  height: calc(var(--u) * 76);
+  margin: calc(var(--u) * -38) 0 0 calc(var(--u) * -38);
+}
+.fish-reticle__inner {
+  width: 100%;
+  height: 100%;
+}
+.fish-reticle svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.fish-reticle__brackets {
+  fill: none;
+  stroke: rgba(240, 236, 228, 0.92);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+  transform-origin: 0 0;
+  transition: stroke 0.15s ease, transform 0.25s var(--ease-out);
+}
+.fish-reticle__dot {
+  fill: rgba(240, 236, 228, 0.85);
+}
+.fish-reticle.is-hot .fish-reticle__brackets {
+  stroke: var(--red);
+  transform: scale(0.82);
+  animation: fish-pulse-fast 0.32s ease-in-out infinite alternate;
+}
+.fish-reticle.is-hot .fish-reticle__dot {
+  fill: var(--red);
+}
+/* enemy:strike — the attack is about to connect (parry cue): a 0.2 s snap. */
+.fish-reticle.is-strike .fish-reticle__brackets {
+  stroke: #fff4ee;
+  transform: scale(0.68);
+  filter: drop-shadow(0 0 3px rgba(255, 70, 56, 0.95)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+  animation: none;
+  transition: none;
+}
+.fish-reticle.is-strike .fish-reticle__dot {
+  fill: #fff4ee;
+}
+
+/* -- off-screen threats -- */
+.fish-threat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--u) * 64);
+  height: calc(var(--u) * 64);
+  margin: calc(var(--u) * -32) 0 0 calc(var(--u) * -32);
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+.fish-threat.is-on {
+  visibility: visible;
+}
+.fish-threat__inner,
+.fish-threat svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.fish-threat path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fish-threat__glow {
+  stroke: rgba(0, 0, 0, 0.35);
+  stroke-width: 7;
+}
+.fish-threat__arc {
+  stroke: rgba(240, 234, 222, 0.9);
+  stroke-width: 2;
+}
+.fish-threat__chev {
+  stroke: rgba(240, 234, 222, 0.95);
+  stroke-width: 2.4;
+}
+.fish-threat__inner {
+  --huge: 1;
+  --warm: 1;
+  transform: scale(calc(var(--huge) * var(--warm)));
+  transition: transform 0.25s var(--ease-out);
+}
+.fish-threat.is-huge .fish-threat__inner {
+  --huge: 1.45;
+}
+/* Committed (approaching / flanking) but not yet striking: steady amber. */
+.fish-threat.is-warm .fish-threat__inner,
+.fish-threat.is-hot .fish-threat__inner {
+  --warm: 1.15;
+}
+.fish-threat.is-warm .fish-threat__arc,
+.fish-threat.is-warm .fish-threat__chev {
+  stroke: #ffb15a;
+}
+.fish-threat.is-warm .fish-threat__glow {
+  stroke: rgba(150, 70, 0, 0.4);
+  stroke-width: 8;
+}
+.fish-threat.is-hot .fish-threat__arc,
+.fish-threat.is-hot .fish-threat__chev {
+  stroke: #ff5a4e;
+}
+.fish-threat.is-hot .fish-threat__glow {
+  stroke: rgba(220, 40, 30, 0.45);
+  stroke-width: 9;
+}
+.fish-threat.is-hot svg {
+  animation: fish-threat-pulse 0.3s ease-in-out infinite alternate;
+}
+@keyframes fish-threat-pulse {
+  from { transform: translateX(0) scale(1); opacity: 1; }
+  to { transform: translateX(calc(var(--u) * 5)) scale(1.18); opacity: 0.55; }
+}
+
+/* -- damage direction -- */
+.fish-hitdir {
+  --r: calc(var(--u) * 175);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.fish-hitdir i,
+.fish-hitdir b {
+  position: absolute;
+  left: calc(var(--r) * -1);
+  top: calc(var(--r) * -1);
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  border-radius: 50%;
+  -webkit-mask-image: linear-gradient(90deg, transparent 30%, #000 45%, #000 55%, transparent 70%);
+  mask-image: linear-gradient(90deg, transparent 30%, #000 45%, #000 55%, transparent 70%);
+}
+.fish-hitdir i {
+  border-top: calc(var(--u) * 3) solid rgba(214, 48, 40, 0.95);
+}
+.fish-hitdir b {
+  border-top: calc(var(--u) * 14) solid rgba(160, 14, 10, 0.32);
+  filter: blur(calc(var(--u) * 5));
+}
+.fish-hitdir.is-heavy i {
+  border-top-width: calc(var(--u) * 5);
+}
+.fish-hitdir.is-heavy b {
+  border-top-width: calc(var(--u) * 24);
+}
+
+/* -- combat words -- */
+.fish-ctext {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+.fish-ctext span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  font-size: calc(var(--u) * 34);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em;
+}
+.fish-ctext.is-crit span {
+  color: #f6e7d6;
+  text-shadow: 0 0 calc(var(--u) * 3) rgba(255, 200, 190, 0.5), 0 0 calc(var(--u) * 16) rgba(220, 50, 40, 0.85),
+    0 0 calc(var(--u) * 36) rgba(140, 10, 10, 0.7);
+}
+.fish-ctext.is-parry span {
+  font-size: calc(var(--u) * 30);
+  color: #f2fbfc;
+  text-shadow: 0 0 calc(var(--u) * 4) rgba(255, 255, 255, 0.6), 0 0 calc(var(--u) * 22) rgba(150, 220, 235, 0.85);
+}
+.fish-ctext.is-dodge span {
+  font-size: calc(var(--u) * 28);
+  font-weight: 400;
+  letter-spacing: 0.8em;
+  color: var(--fg);
+  text-shadow: 0 0 calc(var(--u) * 18) rgba(160, 215, 225, 0.7), var(--shade);
+}
+
+/* -- first-time parry cue hint: 「现在 —— E 格挡」 beside the striker -- */
+.fish-strikehint {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  will-change: transform;
+}
+.fish-strikehint.is-on {
+  visibility: visible;
+}
+.fish-strikehint__in {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(0, -50%);
+}
+.fish-strikehint[data-side='l'] .fish-strikehint__in {
+  transform: translate(-100%, -50%);
+}
+.fish-strikehint[data-side='m'] .fish-strikehint__in {
+  transform: translate(-50%, -50%);
+}
+.fish-strikehint__pop {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+  padding: calc(var(--u) * 6) calc(var(--u) * 14);
+  white-space: nowrap;
+  opacity: 0;
+  transform-origin: left center;
+  font-size: calc(var(--u) * 17);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: #fff4ee;
+  text-shadow: 0 0 calc(var(--u) * 3) rgba(255, 200, 190, 0.5), 0 0 calc(var(--u) * 14) rgba(220, 50, 40, 0.9), var(--shade);
+}
+.fish-strikehint[data-side='l'] .fish-strikehint__pop { transform-origin: right center; }
+.fish-strikehint[data-side='m'] .fish-strikehint__pop { transform-origin: center; }
+/* a pool of shade so it reads over bright water */
+.fish-strikehint__pop::before {
+  content: '';
+  position: absolute;
+  inset: -40% -12%;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, rgba(20, 0, 0, 0.5) 0%, rgba(20, 0, 0, 0.22) 50%, rgba(20, 0, 0, 0) 72%);
+}
+.fish-strikehint__pop b {
+  font-weight: 600;
+  font-size: 1.3em;
+  letter-spacing: 0.24em;
+}
+.fish-strikehint__pop i {
+  display: block;
+  width: calc(var(--u) * 26);
+  height: calc(var(--u) * 2);
+  background: currentColor;
+  box-shadow: 0 0 calc(var(--u) * 6) rgba(220, 50, 40, 0.9);
+}
+.fish-strikehint__pop kbd {
+  margin: 0 0.1em 0 0;
+  font-size: 0.95em;
+  color: #fff;
+  border-color: rgba(255, 236, 228, 0.85);
+  background: rgba(180, 30, 24, 0.45);
+  box-shadow: 0 0 calc(var(--u) * 8) rgba(230, 60, 45, 0.7);
+  text-shadow: none;
+}
+
+/* -- grab QTE (lower third: the eye stab itself stays unobstructed) -- */
+.fish-grab {
+  position: absolute;
+  left: 50%;
+  top: 79%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%) scale(1.08);
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.3s var(--ease-out);
+}
+.fish-grab.is-on {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+/* Paused mid-grab: out of the way of the pause menu (its hint sits right here). */
+.fish-grab.is-on.is-paused {
+  opacity: 0;
+}
+.fish-grab__halo {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: calc(var(--u) * 392);
+  height: calc(var(--u) * 252);
+  margin: calc(var(--u) * -126) 0 0 calc(var(--u) * -196);
+  background: radial-gradient(ellipse at center, rgba(90, 0, 0, 0.5) 0%, rgba(50, 0, 0, 0.25) 40%, rgba(0, 0, 0, 0) 70%);
+  animation: fish-pulse-slow 0.5s ease-in-out infinite alternate;
+}
+.fish-grab__ring {
+  position: relative;
+  width: calc(var(--u) * 96);
+  height: calc(var(--u) * 96);
+}
+.fish-grab__ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+.fish-grab__track {
+  fill: rgba(20, 0, 0, 0.35);
+  stroke: rgba(236, 230, 218, 0.18);
+  stroke-width: 2;
+}
+.fish-grab__prog {
+  fill: none;
+  stroke: #e2473d;
+  stroke-width: 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(230, 50, 40, 0.9));
+}
+.fish-grab__key {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--u) * 19);
+  letter-spacing: 0.2em;
+  padding-left: 0.2em;
+  color: #fff3ea;
+  text-shadow: 0 0 calc(var(--u) * 12) rgba(230, 50, 40, 0.9);
+}
+.fish-grab__text {
+  position: relative;
+  margin-top: calc(var(--u) * 20);
+  font-size: calc(var(--u) * 27);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  padding-left: 0.22em;
+  white-space: nowrap;
+  color: #f7e9dd;
+  text-shadow: 0 0 calc(var(--u) * 3) rgba(255, 210, 200, 0.4), 0 0 calc(var(--u) * 20) rgba(210, 30, 24, 0.95),
+    var(--shade);
+  animation: fish-grab-text 0.42s ease-in-out infinite alternate;
+}
+.fish-grab__time {
+  position: relative;
+  width: calc(var(--u) * 240);
+  height: calc(var(--u) * 2);
+  margin-top: calc(var(--u) * 14);
+  background: rgba(236, 230, 218, 0.12);
+  opacity: 0;
+}
+.fish-grab.has-time .fish-grab__time {
+  opacity: 1;
+}
+.fish-grab__time i {
+  position: absolute;
+  inset: 0;
+  background: #e2473d;
+  transform-origin: center;
+}
+.fish-grab.is-success .fish-grab__text {
+  animation: none;
+  color: #fff;
+  text-shadow: 0 0 calc(var(--u) * 22) rgba(170, 225, 235, 0.9), var(--shade);
+  letter-spacing: 0.8em;
+  padding-left: 0.8em;
+  transition: letter-spacing 0.6s var(--ease-out);
+}
+.fish-grab.is-success .fish-grab__prog {
+  stroke: #f2fbfc;
+  filter: drop-shadow(0 0 5px rgba(170, 225, 235, 0.9));
+}
+.fish-grab.is-success .fish-grab__halo {
+  animation: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+@keyframes fish-grab-text {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(1.045); opacity: 0.82; }
+}
+
+/* -- hints / readouts -- */
+.fish-tips,
+.fish-lockhint {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  text-shadow: var(--shade);
+}
+/* Two centred rows (movement over combat), narrow enough to stay clear of the
+   player bars bottom-left. */
+.fish-tips {
+  bottom: calc(var(--u) * 40);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 10);
+  font-size: calc(var(--u) * 13);
+  letter-spacing: 0.25em;
+  color: var(--fg3);
+}
+.fish-tips__row {
+  display: flex;
+  gap: calc(var(--u) * 26);
+}
+.fish-tips kbd {
+  margin-right: 0.6em;
+}
+.fish-tips em {
+  margin: 0 0.3em 0 -0.3em;
+  font-style: normal;
+  color: var(--fg3);
+}
+.fish-lockhint {
+  bottom: calc(var(--u) * 84);
+  font-size: calc(var(--u) * 13);
+  letter-spacing: 0.4em;
+  color: var(--fg2);
+}
+/* above the two tip rows while they show */
+.fish-tips.is-on ~ .fish-lockhint {
+  bottom: calc(var(--u) * 104);
+}
+.fish-tips.is-on,
+.fish-lockhint.is-on {
+  opacity: 1;
+}
+.fish-lockhint.is-on {
+  animation: fish-blink 1.6s 1.4s ease-in-out infinite alternate;
+}
+.fish-fps {
+  position: absolute;
+  right: calc(var(--u) * 16);
+  top: calc(var(--u) * 12);
+  font: calc(var(--u) * 11) / 1.2 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color: rgba(236, 230, 218, 0.55);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+.fish-fps:empty {
+  display: none;
+}
+
+/* ============================ KEYFRAMES =================================== */
+
+@keyframes fish-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fish-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes fish-rise {
+  from { opacity: 0; transform: translateY(calc(var(--u) * 12)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fish-rule {
+  from { opacity: 0; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+@keyframes fish-track-in {
+  from { opacity: 0; letter-spacing: 1.6em; filter: blur(calc(var(--u) * 6)); }
+  to { opacity: 1; letter-spacing: 0.85em; filter: blur(0); }
+}
+@keyframes fish-ink-soft {
+  from { opacity: 0; filter: blur(calc(var(--u) * 10)); transform: scale(1.05); }
+  to { opacity: 1; filter: blur(0); transform: none; }
+}
+@keyframes fish-ink-slow {
+  0% { opacity: 0; filter: blur(calc(var(--u) * 26)); transform: scale(1.08); }
+  50% { opacity: 0.8; filter: blur(calc(var(--u) * 4)); }
+  100% { opacity: 1; filter: blur(0); transform: none; }
+}
+@keyframes fish-ink-card {
+  0% { opacity: 0; filter: blur(calc(var(--u) * 20)); transform: scale(1.1); letter-spacing: 0.6em; }
+  55% { opacity: 0.9; filter: blur(calc(var(--u) * 2)); }
+  100% { opacity: 1; filter: blur(0); transform: none; letter-spacing: 0.34em; }
+}
+@keyframes fish-ink-boss {
+  0% { opacity: 0; filter: blur(calc(var(--u) * 28)) brightness(0.4); transform: scale(1.22); }
+  40% { opacity: 0.9; filter: blur(calc(var(--u) * 4)) brightness(1.4); }
+  100% { opacity: 1; filter: blur(0) brightness(1); transform: none; }
+}
+@keyframes fish-blink {
+  from { opacity: 1; }
+  to { opacity: 0.45; }
+}
+@keyframes fish-pulse-fast {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+@keyframes fish-pulse-slow {
+  from { opacity: 0.65; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fish-grain { animation: none !important; }
+  .fish-introveil.is-play .fish-phone { animation: fish-phone-screen 8.6s linear both !important; } /* no buzz */
+  .fish-threat.is-hot svg,
+  .fish-grab__text,
+  .fish-grab__halo { animation-duration: 1.2s !important; }
+}

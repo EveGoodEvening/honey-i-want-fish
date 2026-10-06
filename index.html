@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>老公，我想吃鱼了</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #01070a; overflow: hidden; }
+      #app { position: fixed; inset: 0; }
+      #app canvas { display: block; width: 100%; height: 100%; }
+      #ui-root { position: fixed; inset: 0; pointer-events: none; }
+
+      /* Boot splash: painted with the HTML, before the ~1-2 s of module
+         construction. Game removes it after the first frame (fades into the
+         title screen's own ink reveal). Same type and palette as src/ui/ui.css. */
+      #boot-splash {
+        --u: max(0.62px, min(calc(100vw / 1280), calc(100vh / 720)));
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+        color: #ece6da;
+        font-family: "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "Source Han Serif CN", "Songti SC",
+          "STSong", "SimSun", serif;
+        -webkit-font-smoothing: antialiased;
+        background:
+          radial-gradient(ellipse 70% 55% at 50% 0%, rgba(40, 92, 104, 0.22) 0%, rgba(40, 92, 104, 0) 70%),
+          radial-gradient(ellipse 120% 90% at 50% 45%, rgba(0, 0, 0, 0) 50%, rgba(0, 2, 4, 0.75) 100%),
+          linear-gradient(180deg, #04161c 0%, #021015 45%, #01070a 100%);
+        transition: opacity 0.9s ease;
+      }
+      #boot-splash.is-gone { opacity: 0; }
+      #boot-splash .bs-title {
+        margin: 0;
+        font-size: calc(var(--u) * 64);
+        font-weight: 600;
+        line-height: 1.1;
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+        color: rgba(239, 233, 221, 0.86);
+        text-shadow:
+          0 0 calc(var(--u) * 2) rgba(255, 255, 255, 0.2),
+          0 0 calc(var(--u) * 30) rgba(150, 205, 215, 0.2),
+          0 calc(var(--u) * 4) calc(var(--u) * 40) rgba(0, 0, 0, 0.7);
+      }
+      /* CJK fonts disagree on where ， sits; use a serif Latin comma like the title screen. */
+      #boot-splash .bs-comma {
+        display: inline-block;
+        width: 0.42em;
+        margin-left: -0.06em;
+        font-family: "Cormorant Garamond", "EB Garamond", "Baskerville", "Palatino Linotype", "Georgia", serif;
+        font-weight: 400;
+      }
+      #boot-splash .bs-rule {
+        width: calc(var(--u) * 120);
+        height: 1px;
+        margin: calc(var(--u) * 30) 0 calc(var(--u) * 20);
+        background: linear-gradient(90deg, transparent, rgba(236, 230, 218, 0.3), transparent);
+      }
+      #boot-splash .bs-sub {
+        margin-right: -0.6em; /* cancel trailing letter-spacing so it centres */
+        font-size: calc(var(--u) * 14);
+        letter-spacing: 0.6em;
+        color: rgba(236, 230, 218, 0.62);
+        will-change: opacity; /* compositor animation: keeps breathing while the main thread builds */
+        animation: bs-breathe 2.6s ease-in-out infinite;
+      }
+      #boot-splash .bs-sub.is-error { color: #d8463f; letter-spacing: 0.2em; margin-right: -0.2em; animation: none; }
+      @keyframes bs-breathe {
+        0%, 100% { opacity: 0.55; }
+        50% { opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot-splash { transition: none; }
+        #boot-splash .bs-sub { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="ui-root"></div>
+    <div id="boot-splash">
+      <h1 class="bs-title" aria-label="老公，我想吃鱼了">老公<span class="bs-comma">,</span>我想吃鱼了</h1>
+      <div class="bs-rule"></div>
+      <div class="bs-sub" role="status">下水中…</div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
