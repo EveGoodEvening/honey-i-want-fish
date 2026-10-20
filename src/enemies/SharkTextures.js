@@ -97,12 +97,17 @@ function makeScars(spec, anat, C, rng) {
   const col = spec.colors;
   const strokes = [];
   const pushStroke = (x0, y0, x1, y1, w, kind) => strokes.push({ x0, y0, x1, y1, w, kind });
+  // Opt-in per species (defaults keep the white's / tiger's strokes): the
+  // share of bite rakes, and length / width multipliers for healed scratches.
+  const rakeShare = col.scarRake ?? 0.32;
+  const lenK = col.scarLen ?? 1;
+  const wK = col.scarWidth ?? 1;
   for (let k = 0; k < col.scars; k++) {
     const s = 0.05 + rng() * 0.78;
     const v = 0.12 + rng() * 0.76;
     const X = s * L;
     const Y = v * C;
-    if (rng() < 0.32) {
+    if (rng() < rakeShare) {
       // Bite rake: an arc of short parallel tooth scratches.
       const R = 0.3 + rng() * 0.48;
       const a0 = rng() * Math.PI * 2;
@@ -117,8 +122,8 @@ function makeScars(spec, anat, C, rng) {
     } else {
       // Long healed scratch: 0.2–1.0 m long, 1.5–3 cm wide.
       const ang = (rng() - 0.5) * 1.4 + (rng() < 0.2 ? Math.PI / 2 : 0);
-      const len = 0.2 + rng() * 0.8;
-      const w = 0.015 + rng() * 0.015;
+      const len = (0.2 + rng() * 0.8) * lenK;
+      const w = (0.015 + rng() * 0.015) * wK;
       const x1 = X + Math.cos(ang) * len;
       const y1 = Y + Math.sin(ang) * len;
       // Slight bend: two segments.
@@ -236,6 +241,8 @@ export function* paintSkin(anat, spec, size, out, anisotropy = 8) {
   const flank = srgb(col.flank);
   const belly = srgb(col.belly);
   const scarPale = [0.78, 0.77, 0.74];
+  const scarMix = col.scarMix ?? 0.55; // healed-scar colour blend (opt-in per species)
+  const scarRelief = col.scarRelief ?? 0.7;
   const scarFresh = [0.52, 0.33, 0.32];
   const slitInner = [0.2, 0.11, 0.11];
 
@@ -517,8 +524,8 @@ export function* paintSkin(anat, spec, size, out, anisotropy = 8) {
             h -= 1.1 * sm;
             rough = lerp(rough, 0.32, sm);
           } else {
-            for (let q = 0; q < 3; q++) c[q] = lerp(c[q], scarPale[q] * (0.5 + 0.5 * tBack) + belly[q] * 0.5 * (1 - tBack), sm * 0.55);
-            h += 0.7 * sm;
+            for (let q = 0; q < 3; q++) c[q] = lerp(c[q], scarPale[q] * (0.5 + 0.5 * tBack) + belly[q] * 0.5 * (1 - tBack), sm * scarMix);
+            h += scarRelief * sm;
             rough = lerp(rough, 0.66, sm);
           }
         }

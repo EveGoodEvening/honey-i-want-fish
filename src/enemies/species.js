@@ -167,64 +167,80 @@ export const SPECIES = {
     maxHealth: 1400,
     seed: 9001,
     sOrigin: 0.36,
-    // Not a scaled-up great white: a deeper, broader trunk (s 0.12–0.5
-    // +10 %) reads as mass. The snout stays a shark's — conical, about the
-    // white's in proportion — with the bulk swelling in behind the eyes
-    // (s 0.05 → 0.08): the old blunt, broad snout and round forehead read
-    // as an orca / beluga head-on and at 3/4 (the boss's close-ups). The
-    // rostrum rows (s ≤ 0.015) are slim and noseCone ends them in a point:
-    // fatter rows under the elliptical cap made a bulb nose with a crease.
+    // Not a scaled-up great white: a barrel trunk (0.28 L deep, 0.23 L
+    // wide at s 0.36 vs the white's 0.21 / 0.17) running full well past
+    // the dorsal, and a thick caudal peduncle, read as an older, heavier
+    // animal at any screen size. The snout stays a shark's — conical, the
+    // forehead flat (s 0.03–0.12 widen, barely deepen) — with the bulk
+    // swelling in behind the eyes: a blunt, broad snout and a round
+    // forehead read as an orca / beluga head-on and at 3/4 (the boss's
+    // close-ups). The rostrum rows (s ≤ 0.015) are slim and noseCone ends
+    // them in a point: fatter rows under the elliptical cap made a bulb
+    // nose with a crease.
     profile: [
       [0.000, 0.008, 0.008, 0.000],
       [0.006, 0.012, -0.001, 0.008],
       [0.015, 0.022, -0.008, 0.016],
-      [0.030, 0.041, -0.026, 0.035],
-      [0.050, 0.055, -0.041, 0.049],
-      [0.080, 0.0734, -0.0614, 0.0706],
-      [0.120, 0.0935, -0.0825, 0.088],
-      [0.170, 0.1089, -0.0990, 0.099],
-      [0.230, 0.1210, -0.1133, 0.1067],
-      [0.300, 0.1298, -0.1221, 0.110],
-      [0.360, 0.1320, -0.1243, 0.1089],
-      [0.420, 0.1287, -0.1188, 0.1034],
-      [0.500, 0.1166, -0.1045, 0.0902],
-      [0.580, 0.0924, -0.0798, 0.0704],
-      [0.660, 0.066, -0.053, 0.05],
-      [0.730, 0.046, -0.034, 0.036],
-      [0.790, 0.032, -0.021, 0.029],
-      [0.840, 0.025, -0.014, 0.025],
-      [0.880, 0.020, -0.009, 0.017],
-      [0.920, 0.016, -0.004, 0.009],
+      [0.030, 0.039, -0.026, 0.035],
+      [0.050, 0.052, -0.041, 0.050],
+      [0.080, 0.070, -0.062, 0.072],
+      [0.120, 0.092, -0.085, 0.093],
+      [0.170, 0.114, -0.105, 0.1016],
+      [0.230, 0.134, -0.124, 0.1121],
+      [0.300, 0.143, -0.134, 0.1168],
+      [0.360, 0.145, -0.137, 0.1159],
+      [0.420, 0.141, -0.131, 0.1102],
+      [0.500, 0.127, -0.115, 0.0969],
+      [0.580, 0.102, -0.089, 0.0760],
+      [0.660, 0.074, -0.060, 0.0551],
+      [0.730, 0.053, -0.039, 0.043],
+      [0.790, 0.039, -0.026, 0.036],
+      [0.840, 0.031, -0.018, 0.031],
+      [0.880, 0.025, -0.012, 0.022],
+      [0.920, 0.018, -0.005, 0.011],
       [0.955, 0.01, 0.01, 0.000],
     ],
     expTop: 2.1,
     expBottom: 2.45,
     headSquare: 0.05, // (0.25 squared the snout's cross-section into a blunt melon)
     noseCone: true, // a pointed, crease-free rostrum (SharkAnatomy)
-    keel: { s0: 0.74, s1: 0.93, amount: 0.013 },
+    keel: { s0: 0.72, s1: 0.94, amount: 0.024 },
     spineS: [0.30, 0.38, 0.46, 0.54, 0.62, 0.70, 0.78, 0.855, 0.92],
     headS: 0.18,
     mouth: { sFront: 0.04, sHinge: 0.165, sClose: 0.22, deltaMax: 76, palate: 0.027, floor: 0.022, gum: 0.0125, maxOpen: 1.05, throat: 0.08, throatDrop: 0.035 },
     eye: { s: 0.09, theta: 20, radius: 0.0052 },
     gills: { s0: 0.215, spacing: 0.018, count: 5, top: 40, bottom: -30, slant: 0.012, depth: 0.0024, width: 0.0034 },
     fins: {
-      dorsal1: { s0: 0.335, s1: 0.45, theta: 90, span: 0.112, sweep: 0.06, tipChord: 0.011, falcate: 0.022, leBow: 0.011, thick: 0.012, dir: [0, 1, 0], edgeDark: 0.3 },
-      dorsal2: { s0: 0.765, s1: 0.786, theta: 90, span: 0.022, sweep: 0.012, tipChord: 0.003, falcate: 0.003, leBow: 0.002, thick: 0.003, dir: [0, 1, 0] },
-      // Sickle-shaped: a narrow tip, a deeply concave trailing edge and a
-      // tip curling down (edge-on it reads as a blade, not a plank).
-      pectoral: { s0: 0.27, s1: 0.345, theta: -26, span: 0.23, sweep: 0.105, tipChord: 0.006, falcate: 0.03, leBow: 0.012, thick: 0.009, curl: 0.2, dir: [0.92, -0.39, 0], mirror: true, bone: 'pec', paleUnder: true, tipDark: 0.3, tipDarkUnder: 0.6 },
-      pelvic: { s0: 0.565, s1: 0.605, theta: -62, span: 0.048, sweep: 0.024, tipChord: 0.006, falcate: 0.006, leBow: 0.004, thick: 0.005, dir: [0.55, -0.83, 0], mirror: true, paleUnder: true },
-      anal: { s0: 0.772, s1: 0.792, theta: -90, span: 0.021, sweep: 0.012, tipChord: 0.003, falcate: 0.003, leBow: 0.002, thick: 0.003, dir: [0, -1, 0] },
-      caudalUpper: { s0: 0.835, s1: 0.952, theta: 90, span: 0.17, sweep: 0.158, tipChord: 0.007, falcate: 0.05, leBow: 0.012, thick: 0.009, dir: [0, 1, 0], edgeDark: 0.5, tipDark: 0.4 },
-      caudalLower: { s0: 0.855, s1: 0.945, theta: -90, span: 0.14, sweep: 0.105, tipChord: 0.007, falcate: 0.028, leBow: 0.01, thick: 0.008, dir: [0, -1, 0], edgeDark: 0.5, tipDark: 0.4 },
+      // A tall, nearly straight-edged triangle (span 0.15 L ≈ 2.4 m, little
+      // falcation): the white's dorsal is lower and more swept.
+      dorsal1: { s0: 0.32, s1: 0.45, theta: 90, span: 0.15, sweep: 0.05, tipChord: 0.012, falcate: 0.01, leBow: 0.006, thick: 0.014, dir: [0, 1, 0], edgeDark: 0.2 },
+      dorsal2: { s0: 0.76, s1: 0.788, theta: 90, span: 0.028, sweep: 0.014, tipChord: 0.004, falcate: 0.003, leBow: 0.002, thick: 0.004, dir: [0, 1, 0] },
+      // Megalodon reconstructions: broad, heavy pectorals (root chord 0.105
+      // vs the white's 0.073) that still taper to a curled blade tip.
+      pectoral: { s0: 0.245, s1: 0.35, theta: -26, span: 0.23, sweep: 0.1, tipChord: 0.016, falcate: 0.018, leBow: 0.014, thick: 0.011, curl: 0.15, dir: [0.92, -0.39, 0], mirror: true, bone: 'pec', paleUnder: true, tipDark: 0.3, tipDarkUnder: 0.6 },
+      pelvic: { s0: 0.56, s1: 0.61, theta: -62, span: 0.056, sweep: 0.026, tipChord: 0.007, falcate: 0.006, leBow: 0.004, thick: 0.006, dir: [0.55, -0.83, 0], mirror: true, paleUnder: true },
+      anal: { s0: 0.768, s1: 0.794, theta: -90, span: 0.026, sweep: 0.013, tipChord: 0.004, falcate: 0.003, leBow: 0.002, thick: 0.004, dir: [0, -1, 0] },
+      // Near-symmetric lunate tail (lower lobe 94 % of the upper) on a thick
+      // peduncle with a broad keel (keel above).
+      caudalUpper: { s0: 0.83, s1: 0.952, theta: 90, span: 0.175, sweep: 0.14, tipChord: 0.008, falcate: 0.045, leBow: 0.012, thick: 0.01, dir: [0, 1, 0], edgeDark: 0.3, tipDark: 0.3 },
+      caudalLower: { s0: 0.84, s1: 0.948, theta: -90, span: 0.165, sweep: 0.125, tipChord: 0.008, falcate: 0.04, leBow: 0.011, thick: 0.009, dir: [0, -1, 0], edgeDark: 0.3, tipDark: 0.3 },
     },
-    teeth: { perSide: 13, rows: 3, upper: 0.0135, lower: 0.012, upperWidth: 0.9, lowerWidth: 0.7, shape: 'triangle', serration: 0.03 },
+    // Broad, near-equilateral blades with fine serrations (Otodus), uppers
+    // and lowers alike; the white's lowers are narrow.
+    teeth: { perSide: 13, rows: 3, upper: 0.0165, lower: 0.0145, upperWidth: 1.05, lowerWidth: 0.95, shape: 'triangle', serration: 0.02 },
     colors: {
-      back: 0x464a4d, backDark: 0x2f3235, flank: 0x5e6366, belly: 0xd3cfc5,
-      boundary: -0.12, boundaryJag: 0.16, boundarySoft: 0.02,
-      // Scar sizes are absolute (metres, see SharkTextures), so 80 on a 16 m
-      // body reads as far more battle damage per length than 12 on the 6 m white.
-      mottle: 0.16, scars: 80, freshScars: 4, stripes: 0, axillary: true, pores: 0.8, snoutGrey: 1,
+      // Near-uniform charcoal back with a low, soft countershading line —
+      // the white's is mid-flank, crisp and jagged — and an axillary-free
+      // flank; pale scars stand out on the dark hide.
+      back: 0x383c3f, backDark: 0x26292c, flank: 0x4a4e51, belly: 0xc9c6bd,
+      boundary: -0.3, boundaryJag: 0.07, boundarySoft: 0.09,
+      // Scar sizes are absolute (metres, see SharkTextures), so 45 on a 16 m
+      // body still reads as more battle damage than 12 on the 6 m white.
+      // Fewer, longer, softer and lower-contrast than the white's: 110 crisp
+      // pale strokes on the charcoal hide read as white texture glitches
+      // (rake "barcodes") and swamped the gill slits.
+      scarRake: 0.12, scarLen: 1.8, scarWidth: 1.6, scarMix: 0.22, scarRelief: 0.45,
+      mottle: 0.07, scars: 45, freshScars: 2, stripes: 0, axillary: false, pores: 0.8, snoutGrey: 1,
       // Matte, hide-like head: roughness + on the dorsal head (painted) and
       // the clearcoat × headCoat ahead of the gills (shader; high quality).
       headMatte: 0.2, headCoat: 0.3,

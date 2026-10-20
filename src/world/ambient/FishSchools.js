@@ -10,10 +10,16 @@
 //   - Threats (sharks, the player, blood clouds) cause individual fish to
 //     burst away — sideways from a charging predator — producing the classic
 //     "flash expansion", after which the school slowly reforms.
-// Rendering: procedural fish geometry, counter-shaded vertex colours, a
-// metallic MeshStandardMaterial reflecting a procedural Snell's-window
-// environment (fish flash silver when they turn), tail wag in the vertex
-// shader driven by a per-instance (phase, intensity) attribute.
+// Rendering: four procedural species (sardine, scad, jack, fry — see
+// fishGeometry.js) on one shared topology, so every school is still one
+// InstancedMesh / one draw call: the vertex shader fetches the fish's own
+// species shape from a float texture by gl_VertexID (species index per
+// instance), the fragment shader paints its markings from a pattern atlas
+// (counter-shading, spots, stripes, scutes, eyes). A metallic
+// MeshStandardMaterial reflects a procedural Snell's-window environment (fish
+// flash silver when they turn); the fry's see-through body is mixed toward
+// the water colour. Tail wag in the vertex shader driven by a per-instance
+// (phase, intensity, species) attribute.
 //   - The reflection dims with depth (the env map is built from surface
 //     radiance) and fish beyond ~10 m fade to dark silhouettes before the fog,
 //     so distant schools read as shoals of shadows, not fields of 1-px glints.
@@ -29,7 +35,7 @@
 //     drops a school for a frame.
 import * as THREE from 'three';
 import { WORLD } from '../../core/config.js';
-import { createFishGeometry } from './fishGeometry.js';
+import { createFishAssets, FISH_SHAPE_ROWS, FISH_SPECIES } from './fishGeometry.js';
 import { chainShaderPatch, clamp, createRng, envPatch } from './util.js';
 
 const ENV_INTENSITY = 1.15; // at the surface
@@ -40,10 +46,11 @@ const _projView = new THREE.Matrix4();
 const _sphere = new THREE.Sphere();
 
 const SPECIES = {
-  sardine: { length: 0.22, cruise: 1.5, burst: 6.5, radius: 2.6, height: 2.3, tint: [0.92, 0.97, 1.0], sep: 0.34 },
-  scad: { length: 0.34, cruise: 1.7, burst: 6.0, radius: 3.1, height: 2.5, tint: [1.0, 0.96, 0.84], sep: 0.48 },
-  jack: { length: 0.62, cruise: 2.0, burst: 5.5, radius: 3.8, height: 2.8, tint: [0.8, 0.86, 0.9], sep: 0.6 },
-  fry: { length: 0.13, cruise: 1.2, burst: 5.0, radius: 1.9, height: 1.6, tint: [0.86, 1.0, 0.95], sep: 0.22 },
+  // tint: per-school multiplier on the painted pattern (colour lives in the atlas)
+  sardine: { length: 0.22, cruise: 1.5, burst: 6.5, radius: 2.6, height: 2.3, tint: [0.97, 0.99, 1.0], sep: 0.34 },
+  scad: { length: 0.34, cruise: 1.7, burst: 6.0, radius: 3.1, height: 2.5, tint: [1.0, 0.99, 0.96], sep: 0.48 },
+  jack: { length: 0.62, cruise: 2.0, burst: 5.5, radius: 3.8, height: 2.8, tint: [0.95, 0.97, 1.0], sep: 0.6 },
+  fry: { length: 0.13, cruise: 1.2, burst: 5.0, radius: 1.9, height: 1.6, tint: [0.96, 1.0, 1.0], sep: 0.22 },
 };
 
 const LAYOUT = {
@@ -84,7 +91,10 @@ function radius0(sp) {
 const CULL_PAD = 0.5; // m
 
 const SWIM_GLSL = /* glsl */ `
-attribute vec2 aSwim; // x = tail-beat phase (rad), y = intensity 0..1
+attribute vec3 aSwim; // x = tail-beat phase (rad), y = intensity 0..1, z = species index
+uniform highp sampler2D uFishShape; // per species: position+body, normal, fin colour+metal, atlas uv+translucency
+varying vec4 vFishA; // atlas uv, body flag, translucency
+varying float vFishMetal;
 float fishWag(float z, float ph, float k) {
   float tailW = smoothstep(0.22, -0.5, z);
   float amp = 0.03 + 0.08 * k;
@@ -175,17 +185,22 @@ export class FishSchools {
     // Staging in fish order (written by update), packed per visible school
     // into the instance buffers by prepareRender.
     this._mat = new Float32Array(N * 16);
-    this._swimAll = new Float32Array(N * 2);
+    this._swimAll = new Float32Array(N * 3); // phase, intensity, species
+    for (let i = 0; i < N; i++) {
+      this._swimAll[i * 3 + 2] = Math.max(0, FISH_SPECIES.indexOf(this.schools[this.schoolOf[i]].species));
+    }
     this._dirty = false; // staging changed since the last pack
-    const geo = quality === 'low' ? createFishGeometry({ rings: 9, radial: 7 }) : createFishGeometry();
-    this.swim = new Float32Array(N * 2);
-    const swimAttr = new THREE.InstancedBufferAttribute(this.swim, 2);
+    const assets = createFishAssets(quality === 'low' ? { rings: 9, radial: 7 } : {});
+    const geo = assets.geometry;
+    this.shapeTexture = assets.shapeTexture;
+    this.patternTexture = assets.patternTexture;
+    this.swim = new Float32Array(N * 3);
+    const swimAttr = new THREE.InstancedBufferAttribute(this.swim, 3);
     swimAttr.setUsage(THREE.DynamicDrawUsage);
     geo.setAttribute('aSwim', swimAttr);
     this.swimAttr = swimAttr;
 
     const mat = new THREE.MeshStandardMaterial({
-      vertexColors: true,
       metalness: 0.6,
       roughness: 0.3,
       envMap: envMap ?? null,
@@ -195,26 +210,69 @@ export class FishSchools {
     mat.name = 'AmbientLife.fish';
     envPatch(game, mat);
     // Linear water colour the far fish fade toward (copied from env each frame).
-    this.uniforms = { uFishWater: { value: new THREE.Color(0x0b3140) } };
+    this.uniforms = {
+      uFishWater: { value: new THREE.Color(0x0b3140) },
+      uFishShape: { value: this.shapeTexture },
+      uFishPattern: { value: this.patternTexture },
+    };
     const U = this.uniforms;
-    chainShaderPatch(mat, 'ambient-fish-swim-v2', (shader) => {
+    chainShaderPatch(mat, 'ambient-fish-swim-v3', (shader) => {
       shader.uniforms.uFishWater = U.uFishWater;
+      shader.uniforms.uFishShape = U.uFishShape;
+      shader.uniforms.uFishPattern = U.uFishPattern;
       // Past ~10 m the silvery flanks stop reading: fade to a dark
       // silhouette (≈55 % at 20 m, ≈90 % at 25 m; then the scene fog veils
       // it). Kills the sub-pixel glints of distant schools.
       shader.fragmentShader = shader.fragmentShader
-        .replace('#include <common>', '#include <common>\nuniform vec3 uFishWater;')
+        .replace(
+          '#include <common>',
+          `#include <common>
+          uniform vec3 uFishWater;
+          uniform sampler2D uFishPattern;
+          varying vec4 vFishA;
+          varying float vFishMetal;`,
+        )
+        // body: painted pattern (rgb, a = silver); fins: their vertex colour
+        .replace(
+          '#include <color_fragment>',
+          `#include <color_fragment>
+          float fishBody = step( 0.5, vFishA.z );
+          vec4 fishPat = mix( vec4( 1.0 ), texture2D( uFishPattern, vFishA.xy ), fishBody );
+          diffuseColor.rgb *= fishPat.rgb;`,
+        )
+        .replace(
+          '#include <metalnessmap_fragment>',
+          `#include <metalnessmap_fragment>
+          metalnessFactor *= vFishMetal * fishPat.a;`,
+        )
+        // see-through parts (fry body, fins) take the water colour behind them
         .replace(
           '#include <opaque_fragment>',
-          `outgoingLight = mix( outgoingLight, uFishWater * 0.6, smoothstep( 8.0, 30.0, length( vViewPosition ) ) );
+          `outgoingLight = mix( outgoingLight, uFishWater, vFishA.w * mix( 1.0, 1.0 - fishPat.a, fishBody ) );
+          outgoingLight = mix( outgoingLight, uFishWater * 0.6, smoothstep( 8.0, 30.0, length( vViewPosition ) ) );
           #include <opaque_fragment>`,
         );
       shader.vertexShader = shader.vertexShader
         .replace('#include <common>', `#include <common>\n${SWIM_GLSL}`)
+        // this fish's species vertex (shared topology, see fishGeometry.js)
+        .replace(
+          '#include <beginnormal_vertex>',
+          `int fishRow = int( aSwim.z + 0.5 ) * ${FISH_SHAPE_ROWS};
+          vec4 fishP = texelFetch( uFishShape, ivec2( gl_VertexID, fishRow ), 0 );
+          vec4 fishC = texelFetch( uFishShape, ivec2( gl_VertexID, fishRow + 2 ), 0 );
+          vec4 fishX = texelFetch( uFishShape, ivec2( gl_VertexID, fishRow + 3 ), 0 );
+          vFishA = vec4( fishX.xy, fishP.w, fishX.z );
+          vFishMetal = fishC.w;
+          #ifdef USE_INSTANCING_COLOR
+            vColor.rgb *= fishC.rgb;
+          #endif
+          #include <beginnormal_vertex>
+          objectNormal = texelFetch( uFishShape, ivec2( gl_VertexID, fishRow + 1 ), 0 ).xyz;`,
+        )
         .replace(
           '#include <defaultnormal_vertex>',
           `{
-            float zz = position.z;
+            float zz = fishP.z;
             float slope = (fishWag(zz + 0.01, aSwim.x, aSwim.y) - fishWag(zz - 0.01, aSwim.x, aSwim.y)) / 0.02;
             objectNormal.z -= slope * objectNormal.x;
           }
@@ -222,7 +280,8 @@ export class FishSchools {
         )
         .replace(
           '#include <project_vertex>',
-          `transformed.x += fishWag(position.z, aSwim.x, aSwim.y);
+          `transformed = fishP.xyz;
+          transformed.x += fishWag(fishP.z, aSwim.x, aSwim.y);
           #include <project_vertex>`,
         );
     });
@@ -292,9 +351,9 @@ export class FishSchools {
       const m0 = sc.start * 16;
       const m1 = m0 + sc.count * 16;
       for (let k = m0, o = w * 16; k < m1; k++, o++) dst[o] = src[k];
-      const s0 = sc.start * 2;
-      const s1 = s0 + sc.count * 2;
-      for (let k = s0, o = w * 2; k < s1; k++, o++) swim[o] = swimSrc[k];
+      const s0 = sc.start * 3;
+      const s1 = s0 + sc.count * 3;
+      for (let k = s0, o = w * 3; k < s1; k++, o++) swim[o] = swimSrc[k];
       w += sc.count;
     }
     if (mask !== this._colorMask) {
@@ -613,8 +672,8 @@ export class FishSchools {
       let ph = this.phase[i] + dt * hz * Math.PI * 2 * this.rate[i];
       if (ph > 6283.18) ph -= 6283.18;
       this.phase[i] = ph;
-      swim[i * 2] = ph;
-      swim[i * 2 + 1] = clamp(speed / (sp.cruise * 2.2), 0.2, 1);
+      swim[i * 3] = ph;
+      swim[i * 3 + 1] = clamp(speed / (sp.cruise * 2.2), 0.2, 1);
 
       // ---- instance matrix (basis from velocity; pitch clamped) ----
       let fx = ux / speed;
@@ -695,6 +754,8 @@ export class FishSchools {
   dispose() {
     this.mesh.geometry.dispose();
     this.material.dispose();
+    this.shapeTexture.dispose();
+    this.patternTexture.dispose();
     this.mesh.removeFromParent();
   }
 }

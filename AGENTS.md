@@ -398,3 +398,15 @@ contract every file implements.
   in sync when upgrading three; a repository-root notice alone is not published.
   The title's license panel fetches it through `import.meta.env.BASE_URL`: Pages
   builds with a repository subpath, so a hard-coded root URL would miss the file.
+- Species read: the megalodon used to be a darker, scaled-up great white (same silhouette); it now
+  differs by build (barrel trunk, tall straight-edged dorsal, broad pectorals, near-symmetric
+  tail, thick peduncle, charcoal back with a low soft belly line) while keeping the white's
+  mouth / headS / spineS / length, which combat volumes and camera framing derive from. Opt-in
+  scar fields (`scarRake`, `scarLen`, `scarWidth`, `scarMix`, `scarRelief` in species colors)
+  scale existing random draws only, so other species' skins stay identical. 100+ short pale
+  scars on a dark skin read as barcode glitches; prefer ~45 long, low-contrast ones.
+- Ambient school fish: one InstancedMesh, four species shapes sharing one vertex layout;
+  preview them in Node with `node scripts/fish-view.mjs [out.png] [--views 0,1,2,3,4] [--low]`.
+- Any shark geometry change (even 0.005 of pectoral span) reshuffles which `combat-camsim`
+  bossboom / victory seeds fail; the original tree fails ~2/96 bossboom. Judge on ≥ 64
+  pooled seeds against a baseline, never on one 8-seed run.
