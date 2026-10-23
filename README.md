@@ -25,13 +25,22 @@
 | ![大白鲨近身战斗画面](docs/screenshots/great-white.jpg) | ![十六米巨齿鲨的战斗画面](docs/screenshots/megalodon.jpg) |
 
 ## 运行
+Node.js 使用 24.22.1 或更新的 24.x 安全版本；CI 固定为 24.22.1。
+
 
 ```bash
-npm install
+npm ci
 npm run dev        # http://127.0.0.1:5173
 npm run build      # 产物在 dist/
 npm run preview    # 预览构建结果
 ```
+
+2026-10-23 安全更新：Vite 8.3.5 修复 8.3.2 的开发服务器文件访问及
+launch-editor 漏洞，Playwright 升级至 1.64.1。GitHub Actions 固定到提交 SHA，
+检出时不保留凭据，构建前运行 `npm audit --audit-level=low`。
+本地已通过 `npm ci`、完整依赖审计（0 漏洞）、生产构建、画质与世界 CLI 检查，
+以及仅监听回环地址的生产预览 HTTP 检查（首页、JS、CSS、第三方声明均为 200）；
+npm registry HTTPS 证书校验通过。此次没有运行浏览器测试，也没有执行部署。
 
 需要支持 WebGL2 的桌面浏览器（Chrome / Edge / Firefox / Safari 新版），推荐独立显卡。
 首次启动会根据显卡自动选择画质（低 / 中 / 高），也可以在标题画面切换，选择会被记住；
