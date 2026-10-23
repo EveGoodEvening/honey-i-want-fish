@@ -99,6 +99,14 @@ contract every file implements.
 
 ## Lessons
 
+- Security upgrade (2026-10-23): `npm ci`, full `npm audit --audit-level=low`
+  (zero vulnerabilities), production build, `core-quality-check.mjs`, and
+  `world-checks.mjs` passed. Loopback production HTTP smoke fetched the index,
+  built JS/CSS and third-party notices successfully; registry HTTPS verified.
+  Browser smoke was not run. Keep local/CI Node on the documented secure 24.x
+  floor, pin workflow actions to reviewed SHAs, and never push audit branches to
+  `main` just to verify them: that workflow deploys GitHub Pages.
+
 - README screenshots live in `docs/screenshots/`: actual high-quality game renders,
   1600×900 JPEGs. These are documentation-only; the procedural-assets rule applies to
   runtime meshes, textures and sounds, not screenshots.
@@ -126,8 +134,9 @@ contract every file implements.
   `Element.prototype.requestPointerLock` in an init script; custom launchers must too (or
   pass `?freemouse`). Repeated retries / victory loops / 5 min of play stay flat in memory.
 
-- Versions: `three@0.186.1`, `vite@8.3.2`, `playwright@1.63.0` (Chromium revision 1243 is
-  already in `~/.cache/ms-playwright`).
+- Versions: Node.js 24.22.1 (maintained 24.x only), `three@0.186.1`,
+  `vite@8.3.5`, `playwright@1.64.1`. Browser binaries must match the installed
+  Playwright release; do not assume an older cached revision is compatible.
 - A hook-blocked Bash command runs none of its parts. Don't bundle file edits with a
   `git commit` in one command; if a commit is blocked, re-check that the edits exist.
 - Headless Chromium renders WebGL via SwiftShader (`--use-angle=swiftshader
